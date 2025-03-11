@@ -1,0 +1,12 @@
+{
+    "name": "com.kekser.cvarconsole",
+    "displayName": "Unity CVar Console",
+    "author": { "name": "Kekser", "url": "https://github.com/DerKekser" },
+    "version": "1.0.0",
+    "unity": "2020.3",
+    "description": "A simple console for Unity as an extension of the CVar system.",
+    "keywords": [ "console", "cvar", "unity" ],
+    "license": "MIT",
+    "category": "Tools",
+    "dependencies": {}
+}

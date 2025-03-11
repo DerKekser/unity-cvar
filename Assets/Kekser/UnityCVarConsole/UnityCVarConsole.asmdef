@@ -1,0 +1,16 @@
+{
+    "name": "UnityCVarConsole",
+    "rootNamespace": "",
+    "references": [
+        "GUID:cf431de46a864b0aa8413b7cf5141182"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
