@@ -140,7 +140,9 @@ namespace Game.Scripts.Gameplay.ComputerSystem
 
         public IEnumerator ReadLineCoroutine(Action<string> onLineRead, bool useHistory = false)
         {
+            Vector2Int startPosition = Display.GetCursor();
             int historyIndex = -1;
+            int cursorPosition = 0;
             Display.DisplayCursor();
             StringBuilder inputBuffer = new StringBuilder();
 
@@ -150,7 +152,8 @@ namespace Game.Scripts.Gameplay.ComputerSystem
 
                 if (!AnyKeyDown)
                     continue;
-
+                
+                int oldInputLength = inputBuffer.Length;
                 bool consumedInputString = false;
 
                 foreach (KeyCode keyCode in Enum.GetValues(typeof(KeyCode)))
@@ -175,17 +178,12 @@ namespace Game.Scripts.Gameplay.ComputerSystem
                             Display.HideCursor();
                             onLineRead(null);
                             yield break;
-                        case KeyCode.Space:
-                            inputBuffer.Append(' ');
-                            _display.Write(' ');
+                        case KeyCode.Backspace when cursorPosition > 0 && inputBuffer.Length > 0:
+                            inputBuffer.Remove(cursorPosition - 1, 1);
+                            cursorPosition = Mathf.Max(0, cursorPosition - 1);
                             break;
-                        case KeyCode.Backspace when inputBuffer.Length <= 0:
-                            continue;
-                        case KeyCode.Backspace:
-                            inputBuffer.Remove(inputBuffer.Length - 1, 1);
-                            _display.CursorBackward();
-                            _display.Write('\0');
-                            _display.CursorBackward();
+                        case KeyCode.Delete when cursorPosition < inputBuffer.Length && inputBuffer.Length > 0:
+                            inputBuffer.Remove(cursorPosition, 1);
                             break;
                         case KeyCode.UpArrow:
                             if (!useHistory)
@@ -195,19 +193,12 @@ namespace Game.Scripts.Gameplay.ComputerSystem
                             historyIndex = Mathf.Clamp(historyIndex, -1, _history.Count - 1);
                             if (historyIndex == oldIndex1)
                                 break;
-
-                            for (int i = 0; i < inputBuffer.Length; i++)
-                            {
-                                _display.CursorBackward();
-                                _display.Write('\0');
-                                _display.CursorBackward();
-                            }
-
                             inputBuffer.Clear();
+                            cursorPosition = 0;
                             if (historyIndex == -1)
                                 break;
-                            inputBuffer.Append(_history[historyIndex]);
-                            Write(_history[historyIndex]);
+                            inputBuffer.Insert(cursorPosition, _history[historyIndex]);
+                            cursorPosition = _history[historyIndex].Length;
                             break;
                         case KeyCode.DownArrow:
                             if (!useHistory)
@@ -217,30 +208,51 @@ namespace Game.Scripts.Gameplay.ComputerSystem
                             historyIndex = Mathf.Clamp(historyIndex, -1, _history.Count - 1);
                             if (historyIndex == oldIndex2)
                                 break;
-
-                            for (int i = 0; i < inputBuffer.Length; i++)
-                            {
-                                _display.CursorBackward();
-                                _display.Write('\0');
-                                _display.CursorBackward();
-                            }
-
                             inputBuffer.Clear();
+                            cursorPosition = 0;
                             if (historyIndex == -1)
                                 break;
                             inputBuffer.Append(_history[historyIndex]);
-                            Write(_history[historyIndex]);
+                            cursorPosition = _history[historyIndex].Length;
+                            break;
+                        case KeyCode.LeftArrow when cursorPosition > 0:
+                            cursorPosition = Mathf.Max(0, cursorPosition - 1);
+                            break;
+                        case KeyCode.RightArrow when cursorPosition < inputBuffer.Length:
+                            cursorPosition = Mathf.Min(inputBuffer.Length, cursorPosition + 1);
+                            break;
+                        case KeyCode.Home:
+                            cursorPosition = 0;
+                            break;
+                        case KeyCode.End:
+                            cursorPosition = inputBuffer.Length;
+                            break;
+                        case KeyCode.Backspace:
+                        case KeyCode.Delete:
+                        case KeyCode.LeftArrow:
+                        case KeyCode.RightArrow:
                             break;
                         default:
                             if (consumedInputString)
                                 break;
                             historyIndex = -1;
                             consumedInputString = true;
-                            inputBuffer.Append(InputString);
-                            Write(InputString);
+                            foreach (char c in InputString)
+                            {
+                                inputBuffer.Insert(cursorPosition, c);
+                                cursorPosition++;
+                            }
                             break;
                     }
                 }
+                
+                Display.SetColor(Color.white);
+                Display.SetCursor(startPosition.x, startPosition.y);
+                Write(inputBuffer.ToString());
+                if (oldInputLength > inputBuffer.Length)
+                    for (int i = 0; i < oldInputLength - inputBuffer.Length; i++)
+                        Display.Write(' ');
+                Display.SetCursor(startPosition.x + cursorPosition, startPosition.y);
             }
             
             Display.HideCursor();
