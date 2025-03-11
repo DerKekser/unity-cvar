@@ -29,12 +29,12 @@ namespace Game.Scripts.Gameplay.ComputerSystem
             set => _display = value;
         }
         
-        public bool AnyKeyDown => _inputEnabled && Input.anyKeyDown;
-        public string InputString => _inputEnabled ? Input.inputString : string.Empty;
+        public bool AnyKeyDown => InputEnabled && Input.anyKeyDown;
+        public string InputString => InputEnabled ? Input.inputString : string.Empty;
         
-        public bool GetKeyDown(KeyCode keyCode) => _inputEnabled && Input.GetKeyDown(keyCode);
-        public bool GetKeyUp(KeyCode keyCode) => _inputEnabled && Input.GetKeyUp(keyCode);
-        public bool GetKey(KeyCode keyCode) => _inputEnabled && Input.GetKey(keyCode);
+        public bool GetKeyDown(KeyCode keyCode) => InputEnabled && Input.GetKeyDown(keyCode);
+        public bool GetKeyUp(KeyCode keyCode) => InputEnabled && Input.GetKeyUp(keyCode);
+        public bool GetKey(KeyCode keyCode) => InputEnabled && Input.GetKey(keyCode);
         
         [CVar("cmd_clear")]
         public void ClearConsole()
@@ -44,7 +44,7 @@ namespace Game.Scripts.Gameplay.ComputerSystem
 
         public bool InputEnabled
         {
-            get { return _inputEnabled; }
+            get { return _inputEnabled && gameObject.activeInHierarchy; }
             set => _inputEnabled = value;
         }
         
@@ -249,15 +249,16 @@ namespace Game.Scripts.Gameplay.ComputerSystem
         
         public void RunCmd(string cmd)
         {
-            if (string.IsNullOrEmpty(cmd))
+            if (string.IsNullOrWhiteSpace(cmd))
                 return;
             cmd = cmd.Trim();
             
             CVarResult cVarResult = _cVarManager.ExecuteCommand(cmd);
             
-            Display.SetColor(cVarResult.Success ? Color.white : Color.red);
             if (string.IsNullOrWhiteSpace(cVarResult.Message))
                 return;
+            
+            Display.SetColor(cVarResult.Success ? Color.white : Color.red);
             WriteLine(cVarResult.Message);
         }
         
