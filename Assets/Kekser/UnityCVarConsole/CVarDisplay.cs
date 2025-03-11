@@ -164,7 +164,7 @@ namespace Kekser.PowerCVarConsole
                     _cursorPosition.x, 
                     _lines - _cursorPosition.y - 1,
                     charInfo.Char, 
-                    charInfo.Color, 
+                    _cursorVisible ? Color.black : charInfo.Color,
                      _cursorVisible ? Color.gray : charInfo.BackgroundColor
                 );
             else

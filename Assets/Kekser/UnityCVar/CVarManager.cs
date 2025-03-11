@@ -11,7 +11,7 @@ namespace Kekser.PowerCVar
         private CVarTarget _target;
         private Dictionary<Type, List<object>> _classes = new Dictionary<Type, List<object>>();
         
-        [CVar("cvar_target")]
+        [CVar("cvar_target", "Target for CVar commands.")]
         public string Target
         {
             get
@@ -54,7 +54,7 @@ namespace Kekser.PowerCVar
             _target = new CVarTarget();
         }
         
-        [CVar("cvar_list")]
+        [CVar("cvar_list", "List all available CVars. Can be filtered by name.")]
         public string ListCVars(string filter = "")
         {
             StringBuilder builder = new StringBuilder();
@@ -66,24 +66,24 @@ namespace Kekser.PowerCVar
                 if (string.IsNullOrWhiteSpace(cVar.Value.Description))
                     builder.AppendLine(cVar.Key);
                 else
-                    builder.AppendLine($"{cVar.Key} - {cVar.Value.Description}");
+                    builder.AppendLine($"{cVar.Key,-30} - {cVar.Value.Description}");
             }
             builder.Length -= 1;
             return builder.ToString();
-        }    
+        }
         
-        public void RegisterClass<T>(T obj)
+        public void RegisterClass(object obj)
         {
-            Type type = typeof(T);
+            Type type = obj.GetType();
             if (!_classes.ContainsKey(type))
                 _classes.Add(type, new List<object>());
             
             _classes[type].Add(obj);
         }
         
-        public void UnregisterClass<T>(T obj)
+        public void UnregisterClass(object obj)
         {
-            Type type = typeof(T);
+            Type type = obj.GetType();
             if (!_classes.ContainsKey(type))
                 return;
             
@@ -94,6 +94,11 @@ namespace Kekser.PowerCVar
         {
             _target = new CVarTarget(); 
             RegisterClass(this);
+        }
+        
+        public CVarTarget GetTarget()
+        {
+            return _target;
         }
         
         public CVarResult ExecuteCommand(string command)

@@ -36,6 +36,12 @@ namespace Game.Scripts.Gameplay.ComputerSystem
         public bool GetKeyUp(KeyCode keyCode) => _inputEnabled && Input.GetKeyUp(keyCode);
         public bool GetKey(KeyCode keyCode) => _inputEnabled && Input.GetKey(keyCode);
         
+        [CVar("cmd_clear")]
+        public void ClearConsole()
+        {
+            _display.Clear();
+        }
+
         public bool InputEnabled
         {
             get { return _inputEnabled; }
@@ -261,6 +267,12 @@ namespace Game.Scripts.Gameplay.ComputerSystem
             while (!_cts.IsCancellationRequested)
             {
                 Display.SetBackgroundColor(Color.black);
+                CVarTarget target = _cVarManager.GetTarget();
+                if (target.TargetType != CVarTargetType.None)
+                {
+                    Display.SetColor(Color.green);
+                    Write(_cVarManager.Target);
+                }
                 Display.SetColor(Color.gray);
                 Write("> ");
                 yield return ReadLineCoroutine(result =>
@@ -275,15 +287,32 @@ namespace Game.Scripts.Gameplay.ComputerSystem
             }
         }
         
-        [CVar("cmd_clear")]
-        public void ClearConsole()
+        private void OnLogMessageReceived(string condition, string stackTrace, LogType type)
         {
-            _display.Clear();
+            switch (type)
+            {
+                case LogType.Error:
+                case LogType.Exception:
+                    Display.SetColor(Color.red);
+                    break;
+                case LogType.Warning:
+                    Display.SetColor(Color.yellow);
+                    break;
+                case LogType.Log:
+                    Display.SetColor(Color.white);
+                    break;
+                default:
+                    Display.SetColor(Color.gray);
+                    break;
+            }
+            WriteLine(condition);
         }
+
         
         private void Start()
         {
             _cts = new CancellationTokenSource();
+            //Application.logMessageReceived -= OnLogMessageReceived; // TODO: improve input handling and re-enable
             StartCoroutine(UpdateRunner());
         }
     }
