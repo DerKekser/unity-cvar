@@ -4,38 +4,40 @@ using System.Linq;
 using System.Reflection;
 using UnityEngine;
 
-namespace Kekser.PowerCVar
+namespace Kekser.UnityCVar
 {
     public static class CVarAttributeCache
     {
-        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)] private static void Initialize()
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)] 
+        private static void Initialize()
         {
             CacheTypes();
         }
         
-        private static Dictionary<string, CVarCache> _cache = new Dictionary<string, CVarCache>();
+        private static Dictionary<string, ICVar> _cache = new Dictionary<string, ICVar>();
         private static bool _isCached = false;
         
-        public static Dictionary<string, CVarCache> Cache => _cache;
+        public static IReadOnlyDictionary<string, ICVar> Cache => _cache;
         
         public static bool HasCVar(string name)
         {
             return _cache.ContainsKey(name);
         }
         
-        public static CVarCache GetCVar(string name)
+        public static ICVar GetCVar(string name)
         {
             return _cache[name];
         }
         
-        public static bool TryGetCVar(string name, out CVarCache cache)
+        public static bool TryGetCVar(string name, out ICVar cache)
         {
             return _cache.TryGetValue(name, out cache);
         }
         
         private static void CacheCVar(string name, string description, Type type, MemberInfo memberInfo)
         {
-            if (_cache.TryAddToDictionary(name, new CVarCache(name, description, type, memberInfo)))
+            ICVar cached = CVarFactory.CreateCVar(name, description, type, memberInfo);
+            if (_cache.TryAddToDictionary(name, cached))
                 return;
             Debug.LogErrorFormat("CVar with name {0} already exists. Multiple CVars with the same name are not allowed.", name);
         }
@@ -96,5 +98,20 @@ namespace Kekser.PowerCVar
             
             _isCached = true;
         }
+
+        public static void RegisterCVar(string name, string description, Type type, string memberName)
+        {
+            MemberInfo memberInfo = type.GetMember(memberName,
+                    BindingFlags.Instance | BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic)
+                .FirstOrDefault();
+            if (memberInfo == null)
+            {
+                Debug.LogErrorFormat("Member '{0}' not found in type '{1}'.", memberName, type.Name);
+                return;
+            }
+
+            CacheCVar(name, description, type, memberInfo);
+        }
+
     }
 }

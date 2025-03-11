@@ -3,7 +3,7 @@ using System.Collections;
 using System.Threading;
 using UnityEngine;
 
-namespace Kekser.PowerCVarConsole
+namespace Kekser.UnityCVarConsole
 {
     public class CVarDisplay : MonoBehaviour
     {

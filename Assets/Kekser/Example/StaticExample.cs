@@ -1,4 +1,4 @@
-﻿using Kekser.PowerCVar;
+﻿using Kekser.UnityCVar;
 
 namespace Kekser.Example
 {

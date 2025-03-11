@@ -1,4 +1,4 @@
-﻿namespace Kekser.PowerCVar
+﻿namespace Kekser.UnityCVar
 {
     public enum CVarTargetType
     {

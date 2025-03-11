@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-namespace Kekser.PowerCVarConsole
+namespace Kekser.UnityCVarConsole
 {
     [CreateAssetMenu(fileName = "AsciiFontAsset", menuName = "ASCII/Font Asset", order = 0)]
     public class AsciiFontAsset : ScriptableObject

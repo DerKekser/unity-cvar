@@ -3,7 +3,7 @@ using System.Text;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace Kekser.PowerCVarConsole
+namespace Kekser.UnityCVarConsole
 {
     public class AsciiFontCanvasRenderer : MonoBehaviour
     {

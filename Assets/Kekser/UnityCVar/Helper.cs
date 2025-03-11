@@ -1,9 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Reflection;
 using System.Text.RegularExpressions;
 
-namespace Kekser.PowerCVar
+namespace Kekser.UnityCVar
 {
     public static class Helper
     {
@@ -20,17 +19,6 @@ namespace Kekser.PowerCVar
             return type.IsAbstract && type.IsSealed;
         }
         
-        public static bool IsStatic(this MemberInfo member)
-        {
-            if (member is FieldInfo field)
-                return field.IsStatic;
-            if (member is PropertyInfo property)
-                return property.GetMethod.IsStatic;
-            if (member is MethodInfo method)
-                return method.IsStatic;
-            return false;
-        }
-        
         public static string[] SplitArguments(string input)
         {
             var regex = new Regex(@"[\""].+?[\""]|[^ ]+");
@@ -43,19 +31,43 @@ namespace Kekser.PowerCVar
             return args;
         }
         
-        public static object ConvertValue(string value, Type type)
+        public static bool TryConvertValue(string value, Type type, out object result)
         {
             if (type == typeof(string))
-                return value;
-            if (type == typeof(int))
-                return int.Parse(value);
-            if (type == typeof(float))
-                return float.Parse(value);
-            if (type == typeof(bool))
-                return bool.Parse(value);
+            {
+                result = value;
+                return true;
+            }
+            if (type == typeof(int) && int.TryParse(value, out int intValue))
+            {
+                result = intValue;
+                return true;
+            }
+            if (type == typeof(float) && float.TryParse(value, out float floatValue))
+            {
+                result = floatValue;
+                return true;
+            }
+            if (type == typeof(bool) && bool.TryParse(value, out bool boolValue))
+            {
+                result = boolValue;
+                return true;
+            }
             if (type.IsEnum)
-                return Enum.Parse(type, value);
-            return null;
+            {
+                try
+                {
+                    result = Enum.Parse(type, value);
+                    return true;
+                }
+                catch
+                {
+                    result = null;
+                    return false;
+                }
+            }
+            result = null;
+            return false;
         }
     }
 }

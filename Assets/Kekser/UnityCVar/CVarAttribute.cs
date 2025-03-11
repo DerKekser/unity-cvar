@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Kekser.PowerCVar
+namespace Kekser.UnityCVar
 {
     public class CVarAttribute : Attribute
     {

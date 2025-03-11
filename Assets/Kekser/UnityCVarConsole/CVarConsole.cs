@@ -4,8 +4,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading;
-using Kekser.PowerCVar;
-using Kekser.PowerCVarConsole;
+using Kekser.UnityCVar;
+using Kekser.UnityCVarConsole;
 using UnityEngine;
 
 namespace Game.Scripts.Gameplay.ComputerSystem
@@ -271,7 +271,7 @@ namespace Game.Scripts.Gameplay.ComputerSystem
                 if (target.TargetType != CVarTargetType.None)
                 {
                     Display.SetColor(Color.green);
-                    Write(_cVarManager.Target);
+                    Write(GetTargetString(target));
                 }
                 Display.SetColor(Color.gray);
                 Write("> ");
@@ -285,6 +285,17 @@ namespace Game.Scripts.Gameplay.ComputerSystem
                 yield return null;
                 input = string.Empty;
             }
+        }
+        
+        private string GetTargetString(CVarTarget target)
+        {
+            if (target.TargetType == CVarTargetType.None)
+                return "None";
+            if (target.TargetType == CVarTargetType.GameObjectList)
+                return $"GameObject: {target.TargetName}";
+            if (target.TargetType == CVarTargetType.ClassList)
+                return $"Class: {target.TargetName}";
+            return "Unknown";
         }
         
         private void OnLogMessageReceived(string condition, string stackTrace, LogType type)
