@@ -7,7 +7,7 @@ namespace Kekser.UnityCVarConsole
     {
         [SerializeField]
         private Vector2Int _fontSize = new Vector2Int(8, 16);
-        [SerializeReference] 
+        [SerializeField] 
         private Sprite[] _fontSprites;
         [SerializeField]
         private int _codePage = 437; // IBM PC https://de.wikipedia.org/wiki/Codepage_437
