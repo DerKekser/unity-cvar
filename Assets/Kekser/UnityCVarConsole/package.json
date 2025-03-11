@@ -8,5 +8,7 @@
     "keywords": [ "console", "cvar", "unity" ],
     "license": "MIT",
     "category": "Tools",
-    "dependencies": {}
+    "dependencies": {
+        "com.kekser.cvar": "https://github.com/DerKekser/unity-cvar.git?path=Assets/Kekser/UnityCVar"
+    }
 }
