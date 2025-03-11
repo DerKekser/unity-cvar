@@ -105,6 +105,30 @@ namespace Game.Scripts.Gameplay.ComputerSystem
             Write(number);
             NewLine();
         }
+        
+        public IEnumerator PressKeyCoroutine(Action<char> onKeyPress)
+        {
+            while (!_cts.IsCancellationRequested)
+            {
+                yield return null;
+        
+                if (!AnyKeyDown)
+                    continue;
+            
+                foreach (KeyCode keyCode in Enum.GetValues(typeof(KeyCode)))
+                {
+                    if (!GetKeyDown(keyCode))
+                        continue;
+                
+                    if (InputString.Length == 0)
+                        continue;
+                
+                    onKeyPress(InputString[0]);
+                    yield break;
+                }
+            }
+            onKeyPress('\0');
+        }
 
         public IEnumerator ReadKeyCoroutine(Action<char> onKeyRead)
         {
@@ -258,20 +282,72 @@ namespace Game.Scripts.Gameplay.ComputerSystem
             Display.HideCursor();
             onLineRead(null);
         }
+
+        private IEnumerator SplitMessage(string message)
+        {
+            Color originalColor = Display.GetColor();
+
+            int maxLines = Display.GetSize().y - 2;
+            List<string> lines = new List<string>();
+            foreach (string line in message.Split('\n'))
+            {
+                if (line.Length <= Display.GetSize().x)
+                {
+                    lines.Add(line);
+                    continue;
+                }
+                
+                int lc = Mathf.CeilToInt((float)line.Length / (Display.GetSize().x - 1));
+                for (int i = 0; i < lc; i++)
+                {
+                    int startIndex = i * (Display.GetSize().x - 1);
+                    int length = Mathf.Min((Display.GetSize().x - 1), line.Length - startIndex);
+                    lines.Add(line.Substring(startIndex, length));
+                }
+            }
+            
+            int lineCount = 0;
+            int targetLine = maxLines;
+
+            while (!_cts.IsCancellationRequested)
+            {
+                if (lineCount >= lines.Count)
+                    break;
+                
+                if (lineCount < targetLine)
+                {
+                    Display.SetColor(originalColor);
+                    WriteLine(lines[lineCount]);
+                    lineCount++;
+                }
+                else
+                {
+                    Display.SetColor(Color.gray);
+                    Write("Press any key to continue...");
+                    yield return PressKeyCoroutine(c => targetLine += maxLines);
+                    Display.SetCursor(0, Display.GetCursor().y);
+                    for (int i = 0; i < Display.GetSize().x - 1; i++)
+                        Display.Write(' ');
+                    Display.SetCursor(0, Display.GetCursor().y);
+                }
+                
+                yield return null;
+            }
+        }
         
-        public void RunCmd(string cmd)
+        private IEnumerator RunCmd(string cmd)
         {
             if (string.IsNullOrWhiteSpace(cmd))
-                return;
+                yield break;
             cmd = cmd.Trim();
             
             CVarResult cVarResult = _cVarManager.ExecuteCommand(cmd);
             
             if (string.IsNullOrWhiteSpace(cVarResult.Message))
-                return;
+                yield break;
             
             Display.SetColor(cVarResult.Success ? Color.white : Color.red);
-            WriteLine(cVarResult.Message);
+            yield return SplitMessage(cVarResult.Message);
         }
         
         private IEnumerator UpdateRunner()
@@ -293,7 +369,7 @@ namespace Game.Scripts.Gameplay.ComputerSystem
                     input = result;
                 }, true);
                 
-                RunCmd(input);
+                yield return RunCmd(input);
                 
                 yield return null;
                 input = string.Empty;
