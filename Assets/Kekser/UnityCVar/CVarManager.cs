@@ -10,7 +10,7 @@ namespace Kekser.UnityCVar
         private CVarTarget _target;
         private Dictionary<Type, List<object>> _classes = new Dictionary<Type, List<object>>();
         
-        [CVar("cvar_target.gameobject", "Target GameObject for CVar commands.")]
+        [CVar("tgt_gameobject", "Selects a game object to execute commands on")]
         public string TargetGameObject
         {
             get => _target.TargetName;
@@ -28,7 +28,7 @@ namespace Kekser.UnityCVar
             }
         }
         
-        [CVar("cvar_target.class", "Target class for CVar commands.")]
+        [CVar("tgt_class", "Selects a specific class instance on the current target")]
         public string TargetClass
         {
             get => _target.TargetName;
@@ -46,25 +46,25 @@ namespace Kekser.UnityCVar
             }
         }
         
-        [CVar("cvar_target.clear", "Clear the target for CVar commands.")]
+        [CVar("tgt_clear", "Removes any active GameObject or class target")]
         public void ClearTarget()
         {
             _target = new CVarTarget();
         }
         
-        [CVar("cvar_list", "List all available CVars. Can be filtered by name.")]
+        [CVar("con_list", "Displays all registered cvars and commands")]
         public string ListCVars(string filter = "")
         {
             StringBuilder builder = new StringBuilder();
-            foreach (KeyValuePair<string, ICVar> cVar in CVarAttributeCache.Cache)
+            foreach (KeyValuePair<string, ICVar> cVar in CVarAttributeCache.Cache.OrderBy(c => c.Key))
             {
                 if (!string.IsNullOrWhiteSpace(filter) && !cVar.Key.Contains(filter)) 
                     continue;
                 
                 if (string.IsNullOrWhiteSpace(cVar.Value.Description))
-                    builder.AppendLine(cVar.Key);
+                    builder.AppendLine($"- {cVar.Key}");
                 else
-                    builder.AppendLine($"{cVar.Key,-30} - {cVar.Value.Description}");
+                    builder.AppendLine($"- {cVar.Key,-30} - {cVar.Value.Description}");
             }
             if (builder.Length > 0) // Remove last newline
                 builder.Length -= 1;
@@ -127,9 +127,9 @@ namespace Kekser.UnityCVar
             {
                 object obj = classes[i];
                 if (obj is UnityEngine.Object component)
-                    builder.AppendLine($"{i}: {component.name,-30} -> cvar_target.gameobject {component.GetInstanceID()}");
+                    builder.AppendLine($"{i}: {component.name,-30} -> tgt_gameobject {component.GetInstanceID()}");
                 else if (obj != null && _classes.ContainsKey(obj.GetType()))
-                    builder.AppendLine($"{i}: {obj.GetType().Name,-30} -> cvar_target.class {_classes[obj.GetType()].IndexOf(obj)}");
+                    builder.AppendLine($"{i}: {obj.GetType().Name,-30} -> tgt_class {_classes[obj.GetType()].IndexOf(obj)}");
             }
             if (builder.Length > 0) // Remove last newline
                 builder.Length -= 1;

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Reflection;
+using Kekser.UnityCVar.Converter;
 
 namespace Kekser.UnityCVar
 {
@@ -23,13 +24,13 @@ namespace Kekser.UnityCVar
         public CVarResult Execute(object target, string[] args)
         {
             if (args.Length == 0 && MemberInfo.CanRead)
-                return new CVarResult(true, MemberInfo.GetValue(target).ToString());
+                return new CVarResult(true, TypeConverter.ToString(MemberInfo.GetValue(target)));
             if (args.Length == 0 && !MemberInfo.CanRead)
                 return new CVarResult(false, $"Property '{Name}' is write-only.");
             if (!MemberInfo.CanWrite)
                 return new CVarResult(false, $"Property '{Name}' is read-only.");
             
-            if (!Helper.TryConvertValue(args[0], MemberInfo.PropertyType, out object value))
+            if (!TypeConverter.TryConvertValue(args[0], MemberInfo.PropertyType, out object value))
                 return new CVarResult(false, $"Failed to convert '{args[0]}' to {MemberInfo.PropertyType.Name}.");
             
             MemberInfo.SetValue(target, value);

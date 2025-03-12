@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
+using UnityEngine;
 
 namespace Kekser.UnityCVar
 {
@@ -29,45 +30,6 @@ namespace Kekser.UnityCVar
                 args[i] = matches[i].Value.Trim('"');
             }
             return args;
-        }
-        
-        public static bool TryConvertValue(string value, Type type, out object result)
-        {
-            if (type == typeof(string))
-            {
-                result = value;
-                return true;
-            }
-            if (type == typeof(int) && int.TryParse(value, out int intValue))
-            {
-                result = intValue;
-                return true;
-            }
-            if (type == typeof(float) && float.TryParse(value, out float floatValue))
-            {
-                result = floatValue;
-                return true;
-            }
-            if (type == typeof(bool) && bool.TryParse(value, out bool boolValue))
-            {
-                result = boolValue;
-                return true;
-            }
-            if (type.IsEnum)
-            {
-                try
-                {
-                    result = Enum.Parse(type, value);
-                    return true;
-                }
-                catch
-                {
-                    result = null;
-                    return false;
-                }
-            }
-            result = null;
-            return false;
         }
     }
 }

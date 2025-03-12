@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Reflection;
+using Kekser.UnityCVar.Converter;
 
 namespace Kekser.UnityCVar
 {
@@ -33,12 +34,12 @@ namespace Kekser.UnityCVar
             {
                 if (i >= args.Length)
                     arguments[i] = parameters[i].DefaultValue;
-                else if (!Helper.TryConvertValue(args[i], parameters[i].ParameterType, out arguments[i]))
+                else if (!TypeConverter.TryConvertValue(args[i], parameters[i].ParameterType, out arguments[i]))
                     return new CVarResult(false, $"Failed to convert '{args[i]}' to {parameters[i].ParameterType.Name}.");
             }
             
             object result = MemberInfo.Invoke(target, arguments);
-            return new CVarResult(true, result?.ToString() ?? "");
+            return new CVarResult(true, TypeConverter.ToString(result ?? ""));
         }
     }
 }

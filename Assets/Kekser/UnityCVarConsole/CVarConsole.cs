@@ -36,7 +36,7 @@ namespace Game.Scripts.Gameplay.ComputerSystem
         public bool GetKeyUp(KeyCode keyCode) => InputEnabled && Input.GetKeyUp(keyCode);
         public bool GetKey(KeyCode keyCode) => InputEnabled && Input.GetKey(keyCode);
         
-        [CVar("cmd_clear")]
+        [CVar("con_clear", "Erases all text in the console window")]
         public void ClearConsole()
         {
             _display.Clear();
@@ -297,12 +297,22 @@ namespace Game.Scripts.Gameplay.ComputerSystem
                     continue;
                 }
                 
-                int lc = Mathf.CeilToInt((float)line.Length / (Display.GetSize().x - 1));
-                for (int i = 0; i < lc; i++)
+                string rest = line;
+                while (rest.Length > 0)
                 {
-                    int startIndex = i * (Display.GetSize().x - 1);
-                    int length = Mathf.Min((Display.GetSize().x - 1), line.Length - startIndex);
-                    lines.Add(line.Substring(startIndex, length));
+                    int length = Mathf.Min(Display.GetSize().x - 1, rest.Length);
+                    string temp = rest.Substring(0, length);
+                    int spaceIndex = temp.LastIndexOf(' ');
+                    if (spaceIndex == -1 || length == rest.Length)
+                    {
+                        lines.Add(temp);
+                        rest = rest.Substring(length);
+                    }
+                    else
+                    {
+                        lines.Add(temp.Substring(0, spaceIndex));
+                        rest = rest.Substring(spaceIndex + 1);
+                    }
                 }
             }
             

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Reflection;
+using Kekser.UnityCVar.Converter;
 
 namespace Kekser.UnityCVar
 {
@@ -23,12 +24,12 @@ namespace Kekser.UnityCVar
         public CVarResult Execute(object target, string[] args)
         {
             if (args.Length == 0)
-                return new CVarResult(true, MemberInfo.GetValue(target).ToString());
+                return new CVarResult(true, TypeConverter.ToString(MemberInfo.GetValue(target)));
             
             if (MemberInfo.IsInitOnly)
                 return new CVarResult(false, $"Field '{Name}' is read-only.");
 
-            if (!Helper.TryConvertValue(args[0], MemberInfo.FieldType, out object value))
+            if (!TypeConverter.TryConvertValue(args[0], MemberInfo.FieldType, out object value))
                 return new CVarResult(false, $"Failed to convert '{args[0]}' to {MemberInfo.FieldType.Name}.");
             
             MemberInfo.SetValue(target, value);
