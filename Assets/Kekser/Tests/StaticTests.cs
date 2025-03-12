@@ -220,5 +220,19 @@ namespace Kekser.Tests
             Assert.IsTrue(result.Success);
             Assert.AreEqual("1,2,3", result.Message);
         }
+        
+        [Test]
+        public void TestStaticMethodArgsInvalid()
+        {
+            var result = _cVarManager.ExecuteCommand("test_static_method 10");
+            Assert.IsFalse(result.Success);
+        }
+        
+        [Test]
+        public void TestStaticMethodArgsMissing()
+        {
+            var result = _cVarManager.ExecuteCommand("test_static_method_args_int");
+            Assert.IsFalse(result.Success);
+        }
     }
 }
