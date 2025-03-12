@@ -170,6 +170,8 @@ namespace Game.Scripts.Gameplay.ComputerSystem
             Display.DisplayCursor();
             StringBuilder inputBuffer = new StringBuilder();
 
+            int oldInputLength = 0;
+            
             while (!_cts.IsCancellationRequested)
             {
                 yield return null; // Wait for next frame
@@ -177,7 +179,6 @@ namespace Game.Scripts.Gameplay.ComputerSystem
                 if (!AnyKeyDown)
                     continue;
                 
-                int oldInputLength = inputBuffer.Length;
                 bool consumedInputString = false;
 
                 foreach (KeyCode keyCode in Enum.GetValues(typeof(KeyCode)))
@@ -189,13 +190,24 @@ namespace Game.Scripts.Gameplay.ComputerSystem
                     {
                         case KeyCode.Return:
                         {
-                            string input = inputBuffer.ToString();
+                            string i = inputBuffer.ToString();
                             NewLine();
                             Display.HideCursor();
                             if (useHistory)
-                                _history.Insert(0, input);
-                            onLineRead(input);
+                                _history.Insert(0, i);
+                            onLineRead(i);
                             yield break;
+                        }
+                        case KeyCode.Tab:
+                        {
+                            string i = inputBuffer.ToString();
+                            string c = TryToCompleteCmd(i);
+                            if (c.Length <= i.Length)
+                                break;
+                            inputBuffer.Clear();
+                            inputBuffer.Append(c);
+                            cursorPosition = c.Length;
+                            break;
                         }
                         case KeyCode.Escape:
                             NewLine();
@@ -270,13 +282,21 @@ namespace Game.Scripts.Gameplay.ComputerSystem
                     }
                 }
                 
+                string input = inputBuffer.ToString();
+                string completion = TryToCompleteCmd(input);
+                completion = completion.Substring(Mathf.Min(input.Length, completion.Length));
+                
                 Display.SetColor(Color.white);
                 Display.SetCursor(startPosition.x, startPosition.y);
-                Write(inputBuffer.ToString());
-                if (oldInputLength > inputBuffer.Length)
-                    for (int i = 0; i < oldInputLength - inputBuffer.Length; i++)
+                Write(input);
+                Display.SetColor(Color.gray);
+                Write(completion);
+                int newInputLength = input.Length + completion.Length;
+                if (oldInputLength > newInputLength)
+                    for (int i = 0; i < oldInputLength - newInputLength; i++)
                         Display.Write(' ');
                 Display.SetCursor(startPosition.x + cursorPosition, startPosition.y);
+                oldInputLength = newInputLength;
             }
             
             Display.HideCursor();
@@ -385,6 +405,31 @@ namespace Game.Scripts.Gameplay.ComputerSystem
                 input = string.Empty;
             }
         }
+
+        private string[] GetCompletions(string cmd)
+        {
+            List<string> completions = new List<string>();
+            foreach (KeyValuePair<string, ICVar> cVar in CVarAttributeCache.Cache.OrderBy(c => c.Key))
+            {
+                if (cVar.Key.StartsWith(cmd))
+                    completions.Add(cVar.Key);
+            }
+            return completions.ToArray();
+        }
+        
+        private string TryToCompleteCmd(string input)
+        {
+            string[] parts = input.Split(' ');
+            if (parts.Length == 0)
+                return input;
+            string cmd = parts[0];
+            if (string.IsNullOrWhiteSpace(cmd))
+                return input;
+            string[] completions = GetCompletions(cmd);
+            if (completions.Length == 0)
+                return input;
+            return completions[0];
+        }
         
         private string GetTargetString(CVarTarget target)
         {
@@ -417,12 +462,30 @@ namespace Game.Scripts.Gameplay.ComputerSystem
             }
             WriteLine(condition);
         }
+        
+        private void RenderIntro()
+        {
+            NewLine();
+            Display.SetColor(Color.green);
+            WriteLine(@"   __  __      _ __           _______    __          ");
+            WriteLine(@"  / / / /___  (_) /___  __   / ____/ |  / /___ ______");
+            WriteLine(@" / / / / __ \/ / __/ / / /  / /    | | / / __ `/ ___/");
+            WriteLine(@"/ /_/ / / / / / /_/ /_/ /  / /___  | |/ / /_/ / /    ");
+            WriteLine(@"\____/_/ /_/_/\__/\__, /   \____/  |___/\__,_/_/     ");
+            WriteLine(@"                 /____/                              ");
+            NewLine();
+            WriteLine("Welcome to the Unity CVar Console!");
+            WriteLine("Type 'con_list' to list all available commands.");
+            WriteLine("To specify the scope of the list, use 'con_list <filter>'.");
+            NewLine();
+        }
 
         
         private void Start()
         {
             _cts = new CancellationTokenSource();
             //Application.logMessageReceived -= OnLogMessageReceived; // TODO: improve input handling and re-enable
+            RenderIntro();
             StartCoroutine(UpdateRunner());
         }
     }
