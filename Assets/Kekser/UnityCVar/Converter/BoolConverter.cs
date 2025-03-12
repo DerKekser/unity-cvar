@@ -16,7 +16,7 @@
 
         public string ToString(object value)
         {
-            return value.ToString();
+            return value.ToString().ToLower();
         }
     }
 }

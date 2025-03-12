@@ -1,10 +1,12 @@
-﻿namespace Kekser.UnityCVar.Converter
+﻿using System.Globalization;
+
+namespace Kekser.UnityCVar.Converter
 {
     public class DecimalConverter : ITypeConverter
     {
         public bool TryParse(string value, out object result)
         {
-            if (decimal.TryParse(value, out var s))
+            if (decimal.TryParse(value, NumberStyles.Float, CultureInfo.InvariantCulture, out var s))
             {
                 result = s;
                 return true;
@@ -16,7 +18,8 @@
 
         public string ToString(object value)
         {
-            return value.ToString();
+            decimal d = (decimal)value;
+            return d.ToString(CultureInfo.InvariantCulture);
         }
     }
 }

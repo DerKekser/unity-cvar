@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System.Globalization;
+using UnityEngine;
 
 namespace Kekser.UnityCVar.Converter
 {
@@ -12,7 +13,9 @@ namespace Kekser.UnityCVar.Converter
                 result = Quaternion.identity;
                 return false;
             }
-            if (!float.TryParse(values[0], out float x) || !float.TryParse(values[1], out float y) || !float.TryParse(values[2], out float z))
+            if (!float.TryParse(values[0], NumberStyles.Float, CultureInfo.InvariantCulture, out float x)
+                || !float.TryParse(values[1], NumberStyles.Float, CultureInfo.InvariantCulture, out float y)
+                || !float.TryParse(values[2], NumberStyles.Float, CultureInfo.InvariantCulture, out float z))
             {
                 result = Quaternion.identity;
                 return false;

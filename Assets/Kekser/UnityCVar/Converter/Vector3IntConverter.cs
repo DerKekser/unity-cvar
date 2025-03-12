@@ -35,7 +35,8 @@ namespace Kekser.UnityCVar.Converter
         
         public string ToString(object value)
         {
-            return value.ToString();
+            Vector3Int v = (Vector3Int)value;
+            return $"{v.x},{v.y},{v.z}";    
         }
     }
 }

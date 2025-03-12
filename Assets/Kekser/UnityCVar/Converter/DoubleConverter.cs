@@ -1,10 +1,12 @@
-﻿namespace Kekser.UnityCVar.Converter
+﻿using System.Globalization;
+
+namespace Kekser.UnityCVar.Converter
 {
     public class DoubleConverter : ITypeConverter
     {
         public bool TryParse(string value, out object result)
         {
-            if (double.TryParse(value, out var d))
+            if (double.TryParse(value, NumberStyles.Float, CultureInfo.InvariantCulture, out var d))
             {
                 result = d;
                 return true;
@@ -16,7 +18,8 @@
 
         public string ToString(object value)
         {
-            return value.ToString();
+            double d = (double)value;
+            return d.ToString(CultureInfo.InvariantCulture);
         }
     }
 }

@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System.Globalization;
+using UnityEngine;
 
 namespace Kekser.UnityCVar.Converter
 {
@@ -12,7 +13,8 @@ namespace Kekser.UnityCVar.Converter
                 result = Vector2.zero;
                 return false;
             }
-            if (!float.TryParse(values[0], out float x) || !float.TryParse(values[1], out float y))
+            if (!float.TryParse(values[0], NumberStyles.Float, CultureInfo.InvariantCulture, out float x)
+                || !float.TryParse(values[1], NumberStyles.Float, CultureInfo.InvariantCulture, out float y))
             {
                 result = Vector2.zero;
                 return false;
@@ -35,7 +37,8 @@ namespace Kekser.UnityCVar.Converter
         
         public string ToString(object value)
         {
-            return value.ToString();
+            Vector2 v = (Vector2)value;
+            return $"{v.x},{v.y}";
         }
     }
 }
