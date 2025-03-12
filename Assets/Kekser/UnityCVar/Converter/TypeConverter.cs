@@ -23,7 +23,9 @@ namespace Kekser.UnityCVar.Converter
             {typeof(byte), new ByteConverter()},
             {typeof(sbyte), new SbyteConverter()},
             {typeof(Vector2), new Vector2Converter()},
+            {typeof(Vector2Int), new Vector2IntConverter()},
             {typeof(Vector3), new Vector3Converter()},
+            {typeof(Vector3Int), new Vector3IntConverter()},
             {typeof(Vector4), new Vector4Converter()},
             {typeof(Quaternion), new QuaternionConverter()},
         };
