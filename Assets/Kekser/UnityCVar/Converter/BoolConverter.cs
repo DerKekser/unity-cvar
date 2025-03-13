@@ -3,7 +3,7 @@
     [TypeConverter(typeof(bool))]
     public class BoolConverter : ITypeConverter
     {
-        public bool TryParse(string value, object originalValue, out object result)
+        public bool TryParse(string value, out object result)
         {
             if (bool.TryParse(value, out var b))
             {

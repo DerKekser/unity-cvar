@@ -22,7 +22,7 @@ namespace Kekser.UnityCVar.Converter
             return true;
         }
 
-        public bool TryParse(string value, object originalValue, out object result)
+        public bool TryParse(string value, out object result)
         {
             if (TryConvertVector2Int(value, out var s))
             {

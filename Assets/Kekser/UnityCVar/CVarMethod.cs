@@ -34,7 +34,7 @@ namespace Kekser.UnityCVar
             {
                 if (i >= args.Length)
                     arguments[i] = parameters[i].DefaultValue;
-                else if (!TypeConverter.TryConvertValue(args[i], null, parameters[i].ParameterType, out arguments[i]))
+                else if (!TypeConverter.TryConvertValue(args[i], parameters[i].ParameterType, out arguments[i]))
                     return new CVarResult(false, $"Failed to convert '{args[i]}' to {parameters[i].ParameterType.Name}.");
             }
             

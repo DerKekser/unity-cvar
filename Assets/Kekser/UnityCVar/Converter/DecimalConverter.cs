@@ -5,7 +5,7 @@ namespace Kekser.UnityCVar.Converter
     [TypeConverter(typeof(decimal))]
     public class DecimalConverter : ITypeConverter
     {
-        public bool TryParse(string value, object originalValue, out object result)
+        public bool TryParse(string value, out object result)
         {
             if (decimal.TryParse(value, NumberStyles.Float, CultureInfo.InvariantCulture, out var s))
             {

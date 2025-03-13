@@ -3,7 +3,7 @@
     [TypeConverter(typeof(short))]
     public class ShortConverter : ITypeConverter
     {
-        public bool TryParse(string value, object originalValue, out object result)
+        public bool TryParse(string value, out object result)
         {
             if (short.TryParse(value, out var s))
             {

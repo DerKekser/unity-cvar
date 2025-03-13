@@ -3,7 +3,7 @@
     [TypeConverter(typeof(int))]
     public class IntConverter : ITypeConverter
     {
-        public bool TryParse(string value, object originalValue, out object result)
+        public bool TryParse(string value, out object result)
         {
             if (int.TryParse(value, out var i))
             {

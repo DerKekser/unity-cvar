@@ -3,7 +3,7 @@
     [TypeConverter(typeof(sbyte))]
     public class SbyteConverter : ITypeConverter
     {
-        public bool TryParse(string value, object originalValue, out object result)
+        public bool TryParse(string value, out object result)
         {
             if (sbyte.TryParse(value, out var s))
             {

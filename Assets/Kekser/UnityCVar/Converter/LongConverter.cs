@@ -3,7 +3,7 @@
     [TypeConverter(typeof(long))]
     public class LongConverter : ITypeConverter
     {
-        public bool TryParse(string value, object originalValue, out object result)
+        public bool TryParse(string value, out object result)
         {
             if (long.TryParse(value, out var l))
             {
