@@ -53,7 +53,12 @@ namespace Kekser.UnityCVarConsole
         private void Start()
         {
             _cts = new CancellationTokenSource();
-            StartCoroutine(RefreshLoop());
+            CVarCoroutines.Run(RefreshLoop());
+        }
+
+        private void OnDestroy()
+        {
+            _cts?.Cancel();
         }
 
         private void OnApplicationQuit()
@@ -65,8 +70,6 @@ namespace Kekser.UnityCVarConsole
         {
             while (!_cts.IsCancellationRequested)
             {
-                yield return new WaitForSeconds(1f / _refreshRate);
-                
                 RecalculateSize();
                 if (_isDirty)
                     RenderText();
@@ -82,6 +85,8 @@ namespace Kekser.UnityCVarConsole
                     _fontRenderer.Render();
                 _lastCursorVisible = _cursorVisible;
                 _isDirty = false;
+                
+                yield return new WaitForSeconds(1f / _refreshRate);
             }
         }
         

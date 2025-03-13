@@ -136,10 +136,11 @@ namespace Game.Scripts.Gameplay.ComputerSystem
     
             while (!_cts.IsCancellationRequested)
             {
-                yield return null;
-        
                 if (!AnyKeyDown)
+                {
+                    yield return null;
                     continue;
+                }
             
                 foreach (KeyCode keyCode in Enum.GetValues(typeof(KeyCode)))
                 {
@@ -156,10 +157,9 @@ namespace Game.Scripts.Gameplay.ComputerSystem
                     onKeyRead(InputString[0]);
                     yield break;
                 }
+                
+                yield return null;
             }
-            
-            Display.HideCursor();
-            onKeyRead('\0');
         }
 
         public IEnumerator ReadLineCoroutine(Action<string> onLineRead, bool useHistory = false)
@@ -174,10 +174,11 @@ namespace Game.Scripts.Gameplay.ComputerSystem
             
             while (!_cts.IsCancellationRequested)
             {
-                yield return null; // Wait for next frame
-
                 if (!AnyKeyDown)
+                {
+                    yield return null;
                     continue;
+                }
                 
                 bool consumedInputString = false;
 
@@ -223,7 +224,7 @@ namespace Game.Scripts.Gameplay.ComputerSystem
                             break;
                         case KeyCode.UpArrow:
                             if (!useHistory)
-                                continue;
+                                break;
                             int oldIndex1 = historyIndex;
                             historyIndex++;
                             historyIndex = Mathf.Clamp(historyIndex, -1, _history.Count - 1);
@@ -238,7 +239,7 @@ namespace Game.Scripts.Gameplay.ComputerSystem
                             break;
                         case KeyCode.DownArrow:
                             if (!useHistory)
-                                continue;
+                                break;
                             int oldIndex2 = historyIndex;
                             historyIndex--;
                             historyIndex = Mathf.Clamp(historyIndex, -1, _history.Count - 1);
@@ -297,10 +298,9 @@ namespace Game.Scripts.Gameplay.ComputerSystem
                         Display.Write(' ');
                 Display.SetCursor(startPosition.x + cursorPosition, startPosition.y);
                 oldInputLength = newInputLength;
+                
+                yield return null; // Wait for next frame
             }
-            
-            Display.HideCursor();
-            onLineRead(null);
         }
 
         private IEnumerator SplitMessage(string message)
@@ -486,7 +486,17 @@ namespace Game.Scripts.Gameplay.ComputerSystem
             _cts = new CancellationTokenSource();
             //Application.logMessageReceived -= OnLogMessageReceived; // TODO: improve input handling and re-enable
             RenderIntro();
-            StartCoroutine(UpdateRunner());
+            CVarCoroutines.Run(UpdateRunner());
+        }
+        
+        private void OnDestroy()
+        {
+            _cts?.Cancel();
+        }
+
+        private void OnApplicationQuit()
+        {
+            _cts?.Cancel();
         }
     }
 }
