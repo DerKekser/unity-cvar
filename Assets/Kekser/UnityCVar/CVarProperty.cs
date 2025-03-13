@@ -30,7 +30,7 @@ namespace Kekser.UnityCVar
             if (!MemberInfo.CanWrite)
                 return new CVarResult(false, $"Property '{Name}' is read-only.");
             
-            if (!TypeConverter.TryConvertValue(args[0], MemberInfo.PropertyType, out object value))
+            if (!TypeConverter.TryConvertValue(args[0], MemberInfo.CanRead ? MemberInfo.GetValue(target) : null, MemberInfo.PropertyType, out object value))
                 return new CVarResult(false, $"Failed to convert '{args[0]}' to {MemberInfo.PropertyType.Name}.");
             
             MemberInfo.SetValue(target, value);

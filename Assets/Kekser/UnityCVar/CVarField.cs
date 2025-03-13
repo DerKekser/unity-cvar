@@ -29,7 +29,7 @@ namespace Kekser.UnityCVar
             if (MemberInfo.IsInitOnly)
                 return new CVarResult(false, $"Field '{Name}' is read-only.");
 
-            if (!TypeConverter.TryConvertValue(args[0], MemberInfo.FieldType, out object value))
+            if (!TypeConverter.TryConvertValue(args[0], MemberInfo.GetValue(target), MemberInfo.FieldType, out object value))
                 return new CVarResult(false, $"Failed to convert '{args[0]}' to {MemberInfo.FieldType.Name}.");
             
             MemberInfo.SetValue(target, value);

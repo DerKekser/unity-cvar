@@ -3,7 +3,7 @@
     [TypeConverter(typeof(ulong))]
     public class UlongConverter : ITypeConverter
     {
-        public bool TryParse(string value, out object result)
+        public bool TryParse(string value, object originalValue, out object result)
         {
             if (ulong.TryParse(value, out var ul))
             {

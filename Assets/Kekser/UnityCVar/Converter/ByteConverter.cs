@@ -3,7 +3,7 @@
     [TypeConverter(typeof(byte))]
     public class ByteConverter : ITypeConverter
     {
-        public bool TryParse(string value, out object result)
+        public bool TryParse(string value, object originalValue, out object result)
         {
             if (byte.TryParse(value, out var b))
             {

@@ -3,7 +3,7 @@
     [TypeConverter(typeof(uint))]
     public class UintConverter : ITypeConverter
     {
-        public bool TryParse(string value, out object result)
+        public bool TryParse(string value, object originalValue, out object result)
         {
             if (uint.TryParse(value, out var u))
             {

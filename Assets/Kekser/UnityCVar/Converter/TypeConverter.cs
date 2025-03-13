@@ -20,13 +20,13 @@ namespace Kekser.UnityCVar.Converter
             }
         }
         
-        public static bool TryConvertValue(string value, Type type, out object result)
+        public static bool TryConvertValue(string value, object originalValue, Type type, out object result)
         {
             if (type.IsEnum)
                 return TryParseEnum(value, type, out result);
             
             if (CVarAttributeCache.TryGetConverter(type, out ITypeConverter converter))
-                return converter.TryParse(value, out result);
+                return converter.TryParse(value, originalValue, out result);
 
             result = null;
             return false;

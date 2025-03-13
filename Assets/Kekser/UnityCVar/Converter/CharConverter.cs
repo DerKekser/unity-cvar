@@ -3,7 +3,7 @@
     [TypeConverter(typeof(char))]
     public class CharConverter : ITypeConverter
     {
-        public bool TryParse(string value, out object result)
+        public bool TryParse(string value, object originalValue, out object result)
         {
             if (char.TryParse(value, out var s))
             {
