@@ -2,6 +2,7 @@
 
 namespace Kekser.UnityCVar.Converter
 {
+    [TypeConverter(typeof(Vector3Int))]
     public class Vector3IntConverter : ITypeConverter
     {
         private static bool TryConvertVector3Int(string value, out Vector3Int result)

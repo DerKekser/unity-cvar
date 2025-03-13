@@ -2,6 +2,7 @@
 
 namespace Kekser.UnityCVar.Converter
 {
+    [TypeConverter(typeof(double))]
     public class DoubleConverter : ITypeConverter
     {
         public bool TryParse(string value, out object result)

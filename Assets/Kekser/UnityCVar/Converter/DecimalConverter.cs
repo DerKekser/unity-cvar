@@ -2,6 +2,7 @@
 
 namespace Kekser.UnityCVar.Converter
 {
+    [TypeConverter(typeof(decimal))]
     public class DecimalConverter : ITypeConverter
     {
         public bool TryParse(string value, out object result)

@@ -1,5 +1,6 @@
 ﻿namespace Kekser.UnityCVar.Converter
 {
+    [TypeConverter(typeof(ushort))]
     public class UshortConverter : ITypeConverter
     {
         public bool TryParse(string value, out object result)

@@ -1,5 +1,6 @@
 ﻿namespace Kekser.UnityCVar.Converter
 {
+    [TypeConverter(typeof(long))]
     public class LongConverter : ITypeConverter
     {
         public bool TryParse(string value, out object result)

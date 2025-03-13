@@ -2,6 +2,7 @@
 
 namespace Kekser.UnityCVar.Converter
 {
+    [TypeConverter(typeof(Vector2Int))]
     public class Vector2IntConverter : ITypeConverter
     {
         private static bool TryConvertVector2Int(string value, out Vector2Int result)

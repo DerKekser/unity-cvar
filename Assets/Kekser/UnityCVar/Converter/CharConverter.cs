@@ -1,5 +1,6 @@
 ﻿namespace Kekser.UnityCVar.Converter
 {
+    [TypeConverter(typeof(char))]
     public class CharConverter : ITypeConverter
     {
         public bool TryParse(string value, out object result)

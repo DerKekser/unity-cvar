@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using Kekser.UnityCVar.Converter;
 using UnityEngine;
 
 namespace Kekser.UnityCVar
@@ -15,6 +16,7 @@ namespace Kekser.UnityCVar
         }
         
         private static Dictionary<string, ICVar> _cache = new Dictionary<string, ICVar>();
+        private static Dictionary<Type, ITypeConverter> _converters = new Dictionary<Type, ITypeConverter>();
         private static bool _isCached = false;
         
         public static IReadOnlyDictionary<string, ICVar> Cache => _cache;
@@ -34,6 +36,21 @@ namespace Kekser.UnityCVar
             return _cache.TryGetValue(name, out cache);
         }
         
+        public static bool HasConverter(Type type)
+        {
+            return _converters.ContainsKey(type);
+        }
+        
+        public static ITypeConverter GetConverter(Type type)
+        {
+            return _converters[type];
+        }
+        
+        public static bool TryGetConverter(Type type, out ITypeConverter converter)
+        {
+            return _converters.TryGetValue(type, out converter);
+        }
+        
         private static void CacheCVar(string name, string description, Type type, MemberInfo memberInfo)
         {
             ICVar cached = CVarFactory.CreateCVar(name, description, type, memberInfo);
@@ -42,7 +59,7 @@ namespace Kekser.UnityCVar
             Debug.LogErrorFormat("CVar with name {0} already exists. Multiple CVars with the same name are not allowed.", name);
         }
 
-        private static void CacheAttribute(Type type, MemberInfo memberInfo, object attribute)
+        private static void CacheCVarAttribute(Type type, MemberInfo memberInfo, object attribute)
         {
             CVarAttribute cVarAttribute = attribute as CVarAttribute;
             if (cVarAttribute == null)
@@ -51,7 +68,7 @@ namespace Kekser.UnityCVar
             CacheCVar(cVarAttribute.Name, cVarAttribute.Description, type, memberInfo);
         }
         
-        private static void CacheMemberInfo(Type type, MemberInfo memberInfo)
+        private static void CacheCVarMemberInfo(Type type, MemberInfo memberInfo)
         {
             object[] attributes = memberInfo.GetCustomAttributes(typeof(CVarAttribute), false);
                         
@@ -59,24 +76,53 @@ namespace Kekser.UnityCVar
                 return;
             
             foreach (Attribute attribute in attributes)
-                CacheAttribute(type, memberInfo, attribute);
+                CacheCVarAttribute(type, memberInfo, attribute);
         }
         
-        private static void CacheType(Type type)
+        private static void CacheCVarType(Type type)
         {
             MemberInfo[] members = type.GetMembers(BindingFlags.Instance | BindingFlags.Public |
                                                    BindingFlags.NonPublic | BindingFlags.Static);
 
             foreach (MemberInfo member in members)
-                CacheMemberInfo(type, member);
+                CacheCVarMemberInfo(type, member);
         }
         
-        private static void CacheAssembly(Assembly assembly)
+        private static void CacheCVarAssembly(Assembly assembly)
         {
             Type[] types = assembly.GetTypes();
                 
             foreach (Type type in types)
-                CacheType(type);
+                CacheCVarType(type);
+        }
+        
+        private static void CacheCVarConverterType(Type type)
+        {
+            if (!typeof(ITypeConverter).IsAssignableFrom(type))
+                return;
+            
+            TypeConverterAttribute converterAttribute = Attribute.GetCustomAttribute(type, typeof(TypeConverterAttribute)) as TypeConverterAttribute;
+            if (converterAttribute == null)
+                return;
+            
+            ITypeConverter converter = Activator.CreateInstance(type) as ITypeConverter;
+            if (converter == null)
+            {
+                Debug.LogErrorFormat("Failed to create instance of type {0}. Make sure the class has a parameterless constructor and implements ITypeConverter.", type.Name);
+                return;
+            }
+            
+            if (_converters.TryAddToDictionary(converterAttribute.ConvertType, converter))
+                return;
+            Debug.LogErrorFormat("Converter for type {0} already exists. Multiple converters for the same type are not allowed.", converterAttribute.ConvertType.Name);
+        }
+        
+        private static void CacheCVarConverterAssembly(Assembly assembly)
+        {
+            Type[] types = assembly.GetTypes();
+                
+            foreach (Type type in types)
+                CacheCVarConverterType(type);
         }
         
         private static void CacheTypes()
@@ -84,16 +130,20 @@ namespace Kekser.UnityCVar
             if (_isCached)
                 return;
             
-            string definedIn = typeof(CVarAttribute).Assembly.GetName().Name;
+            string cVarDefinedIn = typeof(CVarAttribute).Assembly.GetName().Name;
+            string cVarConverterDefinedIn = typeof(ITypeConverter).Assembly.GetName().Name;
             
             foreach (Assembly assembly in AppDomain.CurrentDomain.GetAssemblies())
             {
-                if (assembly.GlobalAssemblyCache 
-                    || assembly.GetName().Name != definedIn 
-                    && assembly.GetReferencedAssemblies().All(assemblyName => assemblyName.Name != definedIn))
-                    continue;
-
-                CacheAssembly(assembly);
+                if (!assembly.GlobalAssemblyCache 
+                    && (assembly.GetName().Name == cVarDefinedIn 
+                    || assembly.GetReferencedAssemblies().Any(assemblyName => assemblyName.Name == cVarDefinedIn)))
+                    CacheCVarAssembly(assembly);
+                
+                if (!assembly.GlobalAssemblyCache
+                    && (assembly.GetName().Name == cVarConverterDefinedIn 
+                    || assembly.GetReferencedAssemblies().Any(assemblyName => assemblyName.Name == cVarConverterDefinedIn)))
+                    CacheCVarConverterAssembly(assembly);
             }
             
             _isCached = true;

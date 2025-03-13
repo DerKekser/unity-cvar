@@ -3,6 +3,7 @@ using UnityEngine;
 
 namespace Kekser.UnityCVar.Converter
 {
+    [TypeConverter(typeof(Quaternion))]
     public class QuaternionConverter : ITypeConverter
     {
         private static bool TryConvertEuler(string value, out Quaternion result)

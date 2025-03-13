@@ -3,6 +3,7 @@ using UnityEngine;
 
 namespace Kekser.UnityCVar.Converter
 {
+    [TypeConverter(typeof(Vector2))]
     public class Vector2Converter : ITypeConverter
     {
         private static bool TryConvertVector2(string value, out Vector2 result)

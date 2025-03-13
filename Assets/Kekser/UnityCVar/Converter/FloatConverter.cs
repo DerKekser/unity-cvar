@@ -2,6 +2,7 @@
 
 namespace Kekser.UnityCVar.Converter
 {
+    [TypeConverter(typeof(float))]
     public class FloatConverter : ITypeConverter
     {
         public bool TryParse(string value, out object result)

@@ -1,5 +1,6 @@
 ﻿namespace Kekser.UnityCVar.Converter
 {
+    [TypeConverter(typeof(ulong))]
     public class UlongConverter : ITypeConverter
     {
         public bool TryParse(string value, out object result)

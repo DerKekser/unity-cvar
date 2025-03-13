@@ -1,5 +1,6 @@
 ﻿namespace Kekser.UnityCVar.Converter
 {
+    [TypeConverter(typeof(sbyte))]
     public class SbyteConverter : ITypeConverter
     {
         public bool TryParse(string value, out object result)
