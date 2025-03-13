@@ -2,7 +2,7 @@
     "name": "com.kekser.cvar",
     "displayName": "Unity CVar",
     "author": { "name": "Kekser", "url": "https://github.com/DerKekser" },
-    "version": "1.0.0",
+    "version": "1.0.1",
     "unity": "2021.3",
     "description": "A simple CVar system for Unity.",
     "keywords": [ "cvar", "unity" ],
