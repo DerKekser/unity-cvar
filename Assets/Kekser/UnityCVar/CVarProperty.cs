@@ -13,8 +13,8 @@ namespace Kekser.UnityCVar
         
         public bool Static => MemberInfo.GetMethod.IsStatic;
         
-        public Type ReadType => MemberInfo.CanRead ? MemberInfo.PropertyType : null;
-        public Type[] WriteTypes => MemberInfo.CanWrite ? new[] { MemberInfo.PropertyType } : Type.EmptyTypes;
+        public CVarArgInfo Readable => MemberInfo.CanRead ? new CVarArgInfo(MemberInfo.Name, MemberInfo.PropertyType) : null;
+        public CVarArgInfo[] Writable => MemberInfo.CanWrite ? new[] { new CVarArgInfo(MemberInfo.Name, MemberInfo.PropertyType) } : Array.Empty<CVarArgInfo>();
 
         public CVarProperty(string name, string description, Type type, PropertyInfo memberInfo)
         {

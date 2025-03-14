@@ -14,8 +14,8 @@ namespace Kekser.UnityCVar
         
         public bool Static => MemberInfo.IsStatic;
         
-        public Type ReadType => MemberInfo.ReturnType;
-        public Type[] WriteTypes => MemberInfo.GetParameters().Select(p => p.ParameterType).ToArray();
+        public CVarArgInfo Readable => new CVarArgInfo(MemberInfo.Name, MemberInfo.ReturnType);
+        public CVarArgInfo[] Writable => MemberInfo.GetParameters().Select(p => new CVarArgInfo(p.Name, p.ParameterType)).ToArray();
 
         public CVarMethod(string name, string description, Type type, MethodInfo memberInfo)
         {

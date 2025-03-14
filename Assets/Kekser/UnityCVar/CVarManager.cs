@@ -78,8 +78,8 @@ namespace Kekser.UnityCVar
             StringBuilder builder = new StringBuilder();
             builder.AppendLine($"Command: {command}");
             builder.AppendLine($"Description: {cvar.Description}");
-            builder.AppendLine($"Read: {(cvar.ReadType != null ? cvar.ReadType.Name : "None")}");
-            builder.AppendLine($"Write: {(cvar.WriteTypes.Length > 0 ? string.Join(", ", cvar.WriteTypes.Select(t => t.Name)) : "None")}");
+            builder.AppendLine($"Read: {(cvar.Readable != null ? cvar.Readable.Type.Name : "None")}");
+            builder.AppendLine($"Write: {(cvar.Writable.Length > 0 ? string.Join(", ", cvar.Writable.Select(t => $"{t.Type.Name} {t.Name}")) : "None")}");
             return builder.ToString();
         }
         
