@@ -9,6 +9,8 @@ namespace Kekser.UnityCVar
         string Description { get; }
         Type Type { get; }
         bool Static { get; }
+        Type ReadType { get; }
+        Type[] WriteTypes { get; }
         CVarResult Execute(object target, string[] args);
     }
     

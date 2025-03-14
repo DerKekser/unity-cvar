@@ -12,7 +12,10 @@ namespace Kekser.UnityCVar
         public FieldInfo MemberInfo { get; }
         
         public bool Static => MemberInfo.IsStatic;
-        
+
+        public Type ReadType => MemberInfo.FieldType;
+        public Type[] WriteTypes => MemberInfo.IsInitOnly ? Type.EmptyTypes : new[] { MemberInfo.FieldType };
+
         public CVarField(string name, string description, Type type, FieldInfo memberInfo)
         {
             Name = name;

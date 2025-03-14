@@ -66,8 +66,20 @@ namespace Kekser.UnityCVar
                 else
                     builder.AppendLine($"- {cVar.Key,-30} - {cVar.Value.Description}");
             }
-            if (builder.Length > 0) // Remove last newline
-                builder.Length -= 1;
+            return builder.ToString();
+        }
+        
+        [CVar("con_help", "Displays help for a specific cvar or command")]
+        public string HelpCVar(string command)
+        {
+            if (!CVarAttributeCache.TryGetCVar(command, out ICVar cvar))
+                return $"Command '{command}' not found.";
+            
+            StringBuilder builder = new StringBuilder();
+            builder.AppendLine($"Command: {command}");
+            builder.AppendLine($"Description: {cvar.Description}");
+            builder.AppendLine($"Read: {(cvar.ReadType != null ? cvar.ReadType.Name : "None")}");
+            builder.AppendLine($"Write: {(cvar.WriteTypes.Length > 0 ? string.Join(", ", cvar.WriteTypes.Select(t => t.Name)) : "None")}");
             return builder.ToString();
         }
         
@@ -131,8 +143,6 @@ namespace Kekser.UnityCVar
                 else if (obj != null && _classes.ContainsKey(obj.GetType()))
                     builder.AppendLine($"{i}: {obj.GetType().Name,-30} -> tgt_class {_classes[obj.GetType()].IndexOf(obj)}");
             }
-            if (builder.Length > 0) // Remove last newline
-                builder.Length -= 1;
             return new CVarResult(false, builder.ToString());
         }
 
