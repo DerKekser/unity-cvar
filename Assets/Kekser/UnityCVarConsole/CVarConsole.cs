@@ -201,13 +201,46 @@ namespace Game.Scripts.Gameplay.ComputerSystem
                         }
                         case KeyCode.Tab:
                         {
-                            string i = inputBuffer.ToString();
-                            string c = TryToCompleteCmd(i);
-                            if (c.Length <= i.Length)
+                            if (inputBuffer.Length == 0 || !useHistory)
                                 break;
+                            string i = inputBuffer.ToString();
+                            string[] completions = GetCompletions(i);
+                            if (completions.Length == 0)
+                                break;
+                            
+                            if (completions.Length == 1)
+                            {
+                                inputBuffer.Clear();
+                                inputBuffer.Append(completions[0]);
+                                cursorPosition = completions[0].Length;
+                                break;
+                            }
+                            
+                            string prefix = completions[0];
+                            for (int j = 1; j < completions.Length; j++)
+                            {
+                                string completion = completions[j];
+                                int k = 0;
+                                while (k < prefix.Length && k < completion.Length && prefix[k] == completion[k])
+                                    k++;
+                                prefix = prefix.Substring(0, k);
+                            }
+
+                            if (prefix == i)
+                            {
+                                NewLine();
+                                WriteLine("Found multiple commands:");
+                                yield return SplitMessage(string.Join('\n', completions));
+                                NewLine();
+                                Display.SetColor(Color.gray);
+                                Write("> ");
+                                startPosition = Display.GetCursor();
+                                break;
+                            }
+                            
                             inputBuffer.Clear();
-                            inputBuffer.Append(c);
-                            cursorPosition = c.Length;
+                            inputBuffer.Append(prefix);
+                            cursorPosition = prefix.Length;
                             break;
                         }
                         case KeyCode.Escape:
@@ -284,22 +317,17 @@ namespace Game.Scripts.Gameplay.ComputerSystem
                 }
                 
                 string input = inputBuffer.ToString();
-                string completion = TryToCompleteCmd(input);
-                completion = completion.Substring(Mathf.Min(input.Length, completion.Length));
-                
                 Display.SetColor(Color.white);
                 Display.SetCursor(startPosition.x, startPosition.y);
                 Write(input);
-                Display.SetColor(Color.gray);
-                Write(completion);
-                int newInputLength = input.Length + completion.Length;
+                int newInputLength = input.Length ;
                 if (oldInputLength > newInputLength)
                     for (int i = 0; i < oldInputLength - newInputLength; i++)
                         Display.Write(' ');
                 Display.SetCursor(startPosition.x + cursorPosition, startPosition.y);
                 oldInputLength = newInputLength;
                 
-                yield return null; // Wait for next frame
+                yield return null;
             }
         }
 
@@ -360,8 +388,6 @@ namespace Game.Scripts.Gameplay.ComputerSystem
                         Display.Write(' ');
                     Display.SetCursor(0, Display.GetCursor().y);
                 }
-                
-                yield return null;
             }
         }
         
