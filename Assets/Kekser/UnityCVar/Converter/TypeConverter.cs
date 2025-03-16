@@ -34,6 +34,9 @@ namespace Kekser.UnityCVar.Converter
         
         public static string ToString(object value)
         {
+            if (value == null)
+                return "null";
+            
             if (CVarAttributeCache.TryGetConverter(value.GetType(), out ITypeConverter converter))
                 return converter.ToString(value);
 
