@@ -132,7 +132,7 @@ namespace Kekser.UnityCVarConsole
             if (x < 0 || x >= _currentSize.x || y < 0 || y >= _currentSize.y)
                 return;
             
-            byte cByte = Encoding.GetEncoding(_fontAsset.CodePage).GetBytes(new char[] {c})[0];
+            byte cByte = CharMapping.GetCP437Byte(c);
             
             var index = ToIndex(x, y);
             if (_charBuffer[index] == cByte && _fontColorBuffer[index] == fontColor && _backgroundColorBuffer[index] == backgroundColor)
