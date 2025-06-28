@@ -212,7 +212,8 @@ namespace Game.Scripts.Gameplay.ComputerSystem
                             {
                                 inputBuffer.Clear();
                                 inputBuffer.Append(completions[0]);
-                                cursorPosition = completions[0].Length;
+                                inputBuffer.Append(' ');
+                                cursorPosition = completions[0].Length + 1;
                                 break;
                             }
                             
