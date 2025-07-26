@@ -82,7 +82,8 @@ namespace Kekser.UnityCVar
         private static void CacheCVarType(Type type)
         {
             MemberInfo[] members = type.GetMembers(BindingFlags.Instance | BindingFlags.Public |
-                                                   BindingFlags.NonPublic | BindingFlags.Static);
+                                                   BindingFlags.NonPublic | BindingFlags.Static | 
+                                                   BindingFlags.DeclaredOnly);
 
             foreach (MemberInfo member in members)
                 CacheCVarMemberInfo(type, member);
