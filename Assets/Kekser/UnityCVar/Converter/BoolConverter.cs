@@ -11,6 +11,12 @@
                 return true;
             }
             
+            if (int.TryParse(value, out var i))
+            {
+                result = i != 0;
+                return true;
+            }
+            
             result = null;
             return false;
         }

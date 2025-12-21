@@ -156,6 +156,14 @@ namespace Kekser.Tests
             Assert.IsTrue(result.Success);
             Assert.AreEqual("true", result.Message);
         }
+        
+        [Test]
+        public void TestStaticMethodArgsShortBool()
+        {
+            var result = _cVarManager.ExecuteCommand("test_static_method_args_bool 1");
+            Assert.IsTrue(result.Success);
+            Assert.AreEqual("true", result.Message);
+        }
 
         [Test]
         public void TestStaticMethodArgsByte()
