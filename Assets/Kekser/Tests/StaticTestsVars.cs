@@ -144,5 +144,11 @@ namespace Kekser.Tests
         {
             return value;
         }
+
+        [CVar("test_static_method_args_gameobject")]
+        private static UnityEngine.GameObject StaticMethodArgs(UnityEngine.GameObject value)
+        {
+            return value;
+        }
     }
 }

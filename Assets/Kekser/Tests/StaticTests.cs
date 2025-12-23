@@ -1,5 +1,6 @@
 ﻿using Kekser.UnityCVar;
 using NUnit.Framework;
+using UnityEngine;
 
 namespace Kekser.Tests
 {
@@ -227,6 +228,59 @@ namespace Kekser.Tests
             var result = _cVarManager.ExecuteCommand("test_static_method_args_quaternion 1,2,3");
             Assert.IsTrue(result.Success);
             Assert.AreEqual("1,2,3", result.Message);
+        }
+
+        [Test]
+        public void TestStaticMethodArgsGameObjectSingleByName()
+        {
+            GameObject go = new GameObject("TestGameObject");
+            var result = _cVarManager.ExecuteCommand("test_static_method_args_gameobject TestGameObject");
+            Assert.IsTrue(result.Success);
+            Assert.AreEqual("TestGameObject: (" + go.GetInstanceID() + ")", result.Message);
+            Object.DestroyImmediate(go);
+        }
+        
+        [Test]
+        public void TestStaticMethodArgsGameObjectSingleByInstanceID()
+        {
+            GameObject go = new GameObject("TestGameObject");
+            var result = _cVarManager.ExecuteCommand("test_static_method_args_gameobject " + go.GetInstanceID());
+            Assert.IsTrue(result.Success);
+            Assert.AreEqual("TestGameObject: (" + go.GetInstanceID() + ")", result.Message);
+            Object.DestroyImmediate(go);
+        }
+        
+        [Test]
+        public void TestStaticMethodArgsGameObjectMultipleByName()
+        {
+            GameObject go1 = new GameObject("TestGameObject");
+            GameObject go2 = new GameObject("TestGameObject");
+            var result = _cVarManager.ExecuteCommand("test_static_method_args_gameobject TestGameObject");
+            Assert.IsFalse(result.Success);
+            Object.DestroyImmediate(go1);
+            Object.DestroyImmediate(go2);
+        }
+        
+        [Test]
+        public void TestStaticMethodArgsGameObjectMultipleByInstanceID()
+        {
+            GameObject go1 = new GameObject("TestGameObject1");
+            GameObject go2 = new GameObject("TestGameObject2");
+            var result = _cVarManager.ExecuteCommand("test_static_method_args_gameobject " + go1.GetInstanceID());
+            Assert.IsTrue(result.Success);
+            Assert.AreEqual("TestGameObject1: (" + go1.GetInstanceID() + ")", result.Message);
+            result = _cVarManager.ExecuteCommand("test_static_method_args_gameobject " + go2.GetInstanceID());
+            Assert.IsTrue(result.Success);
+            Assert.AreEqual("TestGameObject2: (" + go2.GetInstanceID() + ")", result.Message);
+            Object.DestroyImmediate(go1);
+            Object.DestroyImmediate(go2);
+        }
+        
+        [Test]
+        public void TestStaticMethodArgsGameObjectInvalid()
+        {
+            var result = _cVarManager.ExecuteCommand("test_static_method_args_gameobject NonExistentObject");
+            Assert.IsFalse(result.Success);
         }
         
         [Test]

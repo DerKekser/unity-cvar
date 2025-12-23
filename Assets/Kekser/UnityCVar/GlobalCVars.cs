@@ -1,4 +1,6 @@
-﻿using UnityEngine;
+﻿using System.Linq;
+using System.Text;
+using UnityEngine;
 
 namespace Kekser.UnityCVar
 {
@@ -34,6 +36,20 @@ namespace Kekser.UnityCVar
                 typeof(Camera),
                 "fieldOfView"
             );
+        }
+        
+        [CVar("go_list", "Lists all active GameObjects in the current scene")]
+        public static string ListGameObjects(string filter = "")
+        {
+            StringBuilder builder = new StringBuilder();
+            foreach (GameObject obj in Object.FindObjectsOfType<GameObject>().OrderBy(go => go.name))
+            {
+                if (!string.IsNullOrWhiteSpace(filter) && !obj.name.Contains(filter)) 
+                    continue;
+                
+                builder.AppendLine($"- {obj.name}: {obj.GetInstanceID()}");
+            }
+            return builder.ToString();
         }
 
         [CVar("dbg_log", "Prints a standard debug message")]
