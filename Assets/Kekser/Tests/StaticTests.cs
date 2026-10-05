@@ -236,7 +236,7 @@ namespace Kekser.Tests
             GameObject go = new GameObject("TestGameObject");
             var result = _cVarManager.ExecuteCommand("test_static_method_args_gameobject TestGameObject");
             Assert.IsTrue(result.Success);
-            Assert.AreEqual("TestGameObject: (" + go.GetInstanceID() + ")", result.Message);
+            Assert.AreEqual("TestGameObject: (" + Helper.ObjectId(go) + ")", result.Message);
             Object.DestroyImmediate(go);
         }
         
@@ -244,9 +244,9 @@ namespace Kekser.Tests
         public void TestStaticMethodArgsGameObjectSingleByInstanceID()
         {
             GameObject go = new GameObject("TestGameObject");
-            var result = _cVarManager.ExecuteCommand("test_static_method_args_gameobject " + go.GetInstanceID());
+            var result = _cVarManager.ExecuteCommand("test_static_method_args_gameobject " + Helper.ObjectId(go));
             Assert.IsTrue(result.Success);
-            Assert.AreEqual("TestGameObject: (" + go.GetInstanceID() + ")", result.Message);
+            Assert.AreEqual("TestGameObject: (" + Helper.ObjectId(go) + ")", result.Message);
             Object.DestroyImmediate(go);
         }
         
@@ -266,12 +266,12 @@ namespace Kekser.Tests
         {
             GameObject go1 = new GameObject("TestGameObject1");
             GameObject go2 = new GameObject("TestGameObject2");
-            var result = _cVarManager.ExecuteCommand("test_static_method_args_gameobject " + go1.GetInstanceID());
+            var result = _cVarManager.ExecuteCommand("test_static_method_args_gameobject " + Helper.ObjectId(go1));
             Assert.IsTrue(result.Success);
-            Assert.AreEqual("TestGameObject1: (" + go1.GetInstanceID() + ")", result.Message);
-            result = _cVarManager.ExecuteCommand("test_static_method_args_gameobject " + go2.GetInstanceID());
+            Assert.AreEqual("TestGameObject1: (" + Helper.ObjectId(go1) + ")", result.Message);
+            result = _cVarManager.ExecuteCommand("test_static_method_args_gameobject " + Helper.ObjectId(go2));
             Assert.IsTrue(result.Success);
-            Assert.AreEqual("TestGameObject2: (" + go2.GetInstanceID() + ")", result.Message);
+            Assert.AreEqual("TestGameObject2: (" + Helper.ObjectId(go2) + ")", result.Message);
             Object.DestroyImmediate(go1);
             Object.DestroyImmediate(go2);
         }

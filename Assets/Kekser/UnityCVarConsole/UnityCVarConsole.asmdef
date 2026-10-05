@@ -2,7 +2,8 @@
     "name": "UnityCVarConsole",
     "rootNamespace": "",
     "references": [
-        "GUID:cf431de46a864b0aa8413b7cf5141182"
+        "GUID:cf431de46a864b0aa8413b7cf5141182",
+        "Unity.InputSystem"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],
@@ -11,6 +12,12 @@
     "precompiledReferences": [],
     "autoReferenced": true,
     "defineConstraints": [],
-    "versionDefines": [],
+    "versionDefines": [
+        {
+            "name": "com.unity.inputsystem",
+            "expression": "1.0.0",
+            "define": "KEKSER_INPUT_SYSTEM"
+        }
+    ],
     "noEngineReferences": false
 }

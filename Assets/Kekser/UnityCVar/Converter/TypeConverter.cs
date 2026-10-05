@@ -10,7 +10,7 @@ namespace Kekser.UnityCVar.Converter
         {
             try
             {
-                result = Enum.Parse(type, value);
+                result = Enum.Parse(type, value, true);
                 return true;
             }
             catch (Exception)

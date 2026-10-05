@@ -29,12 +29,12 @@ namespace Game.Scripts.Gameplay.ComputerSystem
             set => _display = value;
         }
         
-        public bool AnyKeyDown => InputEnabled && Input.anyKeyDown;
-        public string InputString => InputEnabled ? Input.inputString : string.Empty;
+        public bool AnyKeyDown => InputEnabled && ConsoleInput.AnyKeyDown;
+        public string InputString => InputEnabled ? ConsoleInput.InputString : string.Empty;
         
-        public bool GetKeyDown(KeyCode keyCode) => InputEnabled && Input.GetKeyDown(keyCode);
-        public bool GetKeyUp(KeyCode keyCode) => InputEnabled && Input.GetKeyUp(keyCode);
-        public bool GetKey(KeyCode keyCode) => InputEnabled && Input.GetKey(keyCode);
+        public bool GetKeyDown(KeyCode keyCode) => InputEnabled && ConsoleInput.GetKeyDown(keyCode);
+        public bool GetKeyUp(KeyCode keyCode) => InputEnabled && ConsoleInput.GetKeyUp(keyCode);
+        public bool GetKey(KeyCode keyCode) => InputEnabled && ConsoleInput.GetKey(keyCode);
         
         [CVar("con_clear", "Erases all text in the console window")]
         public void ClearConsole()
@@ -525,5 +525,120 @@ namespace Game.Scripts.Gameplay.ComputerSystem
         {
             _cts?.Cancel();
         }
+    }
+
+    /// <summary>
+    /// The console's keyboard: the old Input class, or the Input System package when it is installed and active (the old
+    /// Input class throws when the Input System is the only backend). Typed text comes from the keyboard's text events,
+    /// so the keyboard layout applies; KeyCodes are mapped to the Input System's (physical) keys.
+    /// </summary>
+    public static class ConsoleInput
+    {
+#if KEKSER_INPUT_SYSTEM && ENABLE_INPUT_SYSTEM
+        private static readonly StringBuilder Typed = new StringBuilder();
+        private static int _typedFrame = -1;
+        private static UnityEngine.InputSystem.Keyboard _hooked;
+        private static Dictionary<KeyCode, UnityEngine.InputSystem.Key> _keyMap;
+
+        private static UnityEngine.InputSystem.Keyboard Keyboard
+        {
+            get
+            {
+                UnityEngine.InputSystem.Keyboard keyboard = UnityEngine.InputSystem.Keyboard.current;
+                if (keyboard != _hooked)
+                {
+                    if (_hooked != null)
+                        _hooked.onTextInput -= OnTextInput;
+                    _hooked = keyboard;
+                    if (keyboard != null)
+                        keyboard.onTextInput += OnTextInput;
+                }
+                return keyboard;
+            }
+        }
+
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
+        private static void Hook()
+        {
+            _ = Keyboard;
+        }
+
+        private static void OnTextInput(char c)
+        {
+            if (char.IsControl(c))
+                return;
+            if (_typedFrame != Time.frameCount)
+            {
+                Typed.Clear();
+                _typedFrame = Time.frameCount;
+            }
+            Typed.Append(c);
+        }
+
+        private static bool TryGetKey(KeyCode keyCode, out UnityEngine.InputSystem.Key key)
+        {
+            if (_keyMap == null)
+            {
+                _keyMap = new Dictionary<KeyCode, UnityEngine.InputSystem.Key>();
+                foreach (KeyCode code in Enum.GetValues(typeof(KeyCode)))
+                {
+                    string name = code.ToString();
+                    if (name.StartsWith("Alpha"))
+                        name = "Digit" + name.Substring(5);
+                    else if (name.StartsWith("Keypad") && name.Length == 7 && char.IsDigit(name[6]))
+                        name = "Numpad" + name.Substring(6);
+                    else if (code == KeyCode.Return)
+                        name = nameof(UnityEngine.InputSystem.Key.Enter);
+                    else if (code == KeyCode.KeypadEnter)
+                        name = nameof(UnityEngine.InputSystem.Key.NumpadEnter);
+                    else if (code == KeyCode.BackQuote)
+                        name = nameof(UnityEngine.InputSystem.Key.Backquote);
+                    else if (code == KeyCode.LeftControl)
+                        name = nameof(UnityEngine.InputSystem.Key.LeftCtrl);
+                    else if (code == KeyCode.RightControl)
+                        name = nameof(UnityEngine.InputSystem.Key.RightCtrl);
+                    if (Enum.TryParse(name, out UnityEngine.InputSystem.Key mapped) && mapped != UnityEngine.InputSystem.Key.None)
+                        _keyMap[code] = mapped;
+                }
+            }
+            return _keyMap.TryGetValue(keyCode, out key);
+        }
+
+        private static UnityEngine.InputSystem.Controls.KeyControl Control(KeyCode keyCode)
+        {
+            UnityEngine.InputSystem.Keyboard keyboard = Keyboard;
+            if (keyboard == null || !TryGetKey(keyCode, out UnityEngine.InputSystem.Key key))
+                return null;
+            try
+            {
+                return keyboard[key];
+            }
+            catch (ArgumentOutOfRangeException)
+            {
+                return null;
+            }
+        }
+
+        public static bool AnyKeyDown
+        {
+            get
+            {
+                UnityEngine.InputSystem.Keyboard keyboard = Keyboard;
+                return keyboard != null && (keyboard.anyKey.wasPressedThisFrame || InputString.Length > 0);
+            }
+        }
+
+        public static string InputString => _typedFrame == Time.frameCount ? Typed.ToString() : string.Empty;
+
+        public static bool GetKeyDown(KeyCode keyCode) => Control(keyCode)?.wasPressedThisFrame ?? false;
+        public static bool GetKeyUp(KeyCode keyCode) => Control(keyCode)?.wasReleasedThisFrame ?? false;
+        public static bool GetKey(KeyCode keyCode) => Control(keyCode)?.isPressed ?? false;
+#else
+        public static bool AnyKeyDown => Input.anyKeyDown;
+        public static string InputString => Input.inputString;
+        public static bool GetKeyDown(KeyCode keyCode) => Input.GetKeyDown(keyCode);
+        public static bool GetKeyUp(KeyCode keyCode) => Input.GetKeyUp(keyCode);
+        public static bool GetKey(KeyCode keyCode) => Input.GetKey(keyCode);
+#endif
     }
 }

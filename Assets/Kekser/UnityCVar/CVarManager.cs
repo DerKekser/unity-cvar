@@ -128,7 +128,21 @@ namespace Kekser.UnityCVar
             if (classes.Count > 1)
                 return ListTargets(classes);
             
-            return cvar.Execute(classes[0], args.Skip(1).ToArray());
+            // a command that throws reports it instead of taking the caller (the console's loop) down with it
+            try
+            {
+                return cvar.Execute(classes[0], args.Skip(1).ToArray());
+            }
+            catch (System.Reflection.TargetInvocationException e)
+            {
+                UnityEngine.Debug.LogException(e.InnerException ?? e);
+                return new CVarResult(false, $"'{args[0]}' failed: {(e.InnerException ?? e).Message}");
+            }
+            catch (Exception e)
+            {
+                UnityEngine.Debug.LogException(e);
+                return new CVarResult(false, $"'{args[0]}' failed: {e.Message}");
+            }
         }
         
         private CVarResult ListTargets(List<object> classes)
@@ -139,7 +153,7 @@ namespace Kekser.UnityCVar
             {
                 object obj = classes[i];
                 if (obj is UnityEngine.Object component)
-                    builder.AppendLine($"{i}: {component.name,-30} -> tgt_gameobject {component.GetInstanceID()}");
+                    builder.AppendLine($"{i}: {component.name,-30} -> tgt_gameobject {Helper.ObjectId(component)}");
                 else if (obj != null && _classes.ContainsKey(obj.GetType()))
                     builder.AppendLine($"{i}: {obj.GetType().Name,-30} -> tgt_class {_classes[obj.GetType()].IndexOf(obj)}");
             }
@@ -152,7 +166,7 @@ namespace Kekser.UnityCVar
                 return classes;
             
             if (_target.TargetType == CVarTargetType.GameObjectList)
-                return classes.Where(obj => obj is UnityEngine.Object component && (component.name == _target.TargetName || component.GetInstanceID().ToString() == _target.TargetName)).ToList();
+                return classes.Where(obj => obj is UnityEngine.Object component && (component.name == _target.TargetName || Helper.ObjectId(component) == _target.TargetName)).ToList();
             
             if (_target.TargetType == CVarTargetType.ClassList)
                 return classes.Where(obj => obj != null && _classes.ContainsKey(obj.GetType()) && _classes[obj.GetType()].IndexOf(obj).ToString() == _target.TargetName).ToList();
@@ -169,7 +183,7 @@ namespace Kekser.UnityCVar
             if (_classes.TryGetValue(cvar.Type, out List<object> classList))
                 classes.AddRange(classList);
             if (cvar.Type.IsSubclassOf(typeof(UnityEngine.Object)))
-                classes.AddRange(UnityEngine.Object.FindObjectsOfType(cvar.Type, true));
+                classes.AddRange(Helper.FindAll(cvar.Type));
             classes = classes.Distinct().ToList();
             
             if (classes.Count <= 1)

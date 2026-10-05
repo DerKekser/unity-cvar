@@ -8,14 +8,8 @@ namespace Kekser.UnityCVar.Converter
     {
         public bool TryParse(string value, out object result)
         {
-            bool instanceIdParsed = int.TryParse(value, out int instanceId);
-            GameObject[] allObjects = Object.FindObjectsOfType<GameObject>()
-                .Where(go =>
-                {
-                    if (instanceIdParsed && go.GetInstanceID() == instanceId)
-                        return true;
-                    return go.name == value;
-                })
+            GameObject[] allObjects = Helper.FindAllActive<GameObject>()
+                .Where(go => Helper.ObjectId(go) == value || go.name == value)
                 .ToArray();
 
             if (allObjects.Length == 1)
@@ -33,7 +27,7 @@ namespace Kekser.UnityCVar.Converter
             if (value == null)
                 return "null";
             GameObject go = (GameObject) value;
-            return go == null ? "null" : $"{go.name}: ({go.GetInstanceID()})";
+            return go == null ? "null" : $"{go.name}: ({Helper.ObjectId(go)})";
         }
     }
 }

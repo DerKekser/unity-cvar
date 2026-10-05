@@ -42,12 +42,12 @@ namespace Kekser.UnityCVar
         public static string ListGameObjects(string filter = "")
         {
             StringBuilder builder = new StringBuilder();
-            foreach (GameObject obj in Object.FindObjectsOfType<GameObject>().OrderBy(go => go.name))
+            foreach (GameObject obj in Helper.FindAllActive<GameObject>().OrderBy(go => go.name))
             {
                 if (!string.IsNullOrWhiteSpace(filter) && !obj.name.Contains(filter)) 
                     continue;
                 
-                builder.AppendLine($"- {obj.name}: {obj.GetInstanceID()}");
+                builder.AppendLine($"- {obj.name}: {Helper.ObjectId(obj)}");
             }
             return builder.ToString();
         }
@@ -187,8 +187,13 @@ namespace Kekser.UnityCVar
         [CVar("rnd_quality", "Adjusts render texture quality")]
         public static int RenderTextureQuality
         {
+#if UNITY_2022_2_OR_NEWER
+            get => QualitySettings.globalTextureMipmapLimit;
+            set => QualitySettings.globalTextureMipmapLimit = value;
+#else
             get => QualitySettings.masterTextureLimit;
             set => QualitySettings.masterTextureLimit = value;
+#endif
         }
         
         [CVar("rnd_aa", "Changes anti-aliasing method and sample count")]
